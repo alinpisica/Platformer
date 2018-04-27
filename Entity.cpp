@@ -23,3 +23,11 @@ std::string Entity::getDirection() {
 sf::Vector2f Entity::getRectPosition() {
     return rect.getPosition();
 }
+
+sf::RectangleShape Entity::getRect() {
+    return rect;
+}
+
+bool Entity::collides(sf::RectangleShape rectToCollide) {
+    return rect.getGlobalBounds().intersects(rectToCollide.getGlobalBounds());
+}

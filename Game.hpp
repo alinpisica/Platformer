@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include <iostream>
 #include "Player.hpp"
 #include "Projectile.hpp"
 #include "Enemy.hpp"

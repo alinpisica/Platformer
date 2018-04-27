@@ -13,6 +13,8 @@ public:
     void setDirection(std::string s);
     std::string getDirection();
     sf::Vector2f getRectPosition();
+    sf::RectangleShape getRect();
+    bool collides(sf::RectangleShape rectToCollide);
 protected:
     std::string direction;
     sf::RectangleShape rect;

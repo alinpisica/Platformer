@@ -42,6 +42,9 @@ int Game::play() {
             projectiles.push_back(proj);
         }
 
+        if (player.collides(enemies[0].getRect())) {
+            std::cout << "DA";
+        }
 
         window.clear(sf::Color::Black);
 
