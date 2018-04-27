@@ -11,6 +11,8 @@ Game::~Game() {
 }
 
 int Game::play() {
+    sf::Time elapsedShot;
+
     // Load Textures
     sf::Texture playerTexture;
     sf::Texture enemyTexture;
@@ -28,6 +30,8 @@ int Game::play() {
     enemies.push_back(enemy1);
 
     while (window.isOpen()) {
+        elapsedShot = clock.getElapsedTime();
+
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
@@ -36,14 +40,13 @@ int Game::play() {
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-            Projectile proj;
-            proj.setPosition(player.getRectPosition());
-            proj.setDirection(player.getDirection());
-            projectiles.push_back(proj);
-        }
-
-        if (player.collides(enemies[0].getRect())) {
-            std::cout << "DA";
+            if (elapsedShot.asSeconds() >= 0.5) {
+                clock.restart();
+                Projectile proj;
+                proj.setPosition(player.getRectPosition());
+                proj.setDirection(player.getDirection());
+                projectiles.push_back(proj);
+            }
         }
 
         window.clear(sf::Color::Black);
@@ -59,6 +62,23 @@ int Game::play() {
                 projectiles.erase(projectiles.begin() + i);
             } else {
                 projectiles[i].update();
+            }
+        }
+        for (size_t i = 0; i < enemies.size(); i++) {
+            if (enemies[i].getLife() <= 0) {
+                enemies.erase(enemies.begin() + i);
+            } else {
+                enemies[i].update();
+            }
+        }
+
+        for (size_t i = 0; i < enemies.size(); i++) { 
+            for (size_t j = 0; j < projectiles.size(); j++) {
+                if (enemies[i].collides(projectiles[j].getRect())) {
+                    enemies[i].hit(projectiles[j].getAttackDamage());
+                    projectiles.erase(projectiles.begin() + j);
+                    std::cout << "DA\n";
+                }
             }
         }
 

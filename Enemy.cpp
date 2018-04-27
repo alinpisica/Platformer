@@ -23,3 +23,11 @@ void Enemy::update() {
     sprite.setPosition(rect.getPosition());
 }
 
+void Enemy::hit(float attack) {
+    life -= attack;
+}
+
+float Enemy::getLife() {
+    return life;
+}
+

@@ -13,6 +13,8 @@ public:
     ~Game();
     int play();
 private:
+    sf::Clock clock;
+
     int WIDTH, HEIGHT;
     sf::RenderWindow window;
 

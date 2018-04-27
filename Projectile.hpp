@@ -10,7 +10,8 @@ public:
     void update();
     void updateMovement();
     void setPosition(sf::Vector2f pos);
+    float getAttackDamage();
 private:
     float movementSpeed = 1;
-    int attackDamage = 10;
+    float attackDamage = 10;
 };

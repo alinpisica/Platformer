@@ -32,3 +32,6 @@ void Projectile::setPosition(sf::Vector2f pos) {
     rect.setPosition(pos);
 }
 
+float Projectile::getAttackDamage() {
+    return attackDamage;
+}
