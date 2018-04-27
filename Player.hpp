@@ -10,7 +10,6 @@ public:
   void update();
   void updateMovement();
   void loadTexture(sf::Texture &tex);
-  sf::Vector2f getRectPosition();
 private:
   float movementSpeed = 0.2;
   int attackDamage = 5;

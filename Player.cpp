@@ -49,7 +49,3 @@ void Player::update() {
     sprite.setPosition(rect.getPosition());
 }
 
-sf::Vector2f Player::getRectPosition() {
-    return rect.getPosition();
-}
-

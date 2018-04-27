@@ -12,12 +12,20 @@ Game::~Game() {
 
 int Game::play() {
     // Load Textures
-
     sf::Texture playerTexture;
+    sf::Texture enemyTexture;
+
     if (!playerTexture.loadFromFile("Resources/playerSheet.png")) {
         return EXIT_FAILURE;
     }
     player.loadTexture(playerTexture);
+
+    if (!enemyTexture.loadFromFile("Resources/monsters.png")) {
+        return EXIT_FAILURE;
+    }
+    Enemy enemy1;
+    enemy1.loadTexture(enemyTexture);
+    enemies.push_back(enemy1);
 
     while (window.isOpen()) {
         sf::Event event;
@@ -39,7 +47,6 @@ int Game::play() {
 
         // Updates
         player.update();
-       
 
         for (size_t i = 0; i < projectiles.size(); i++) {
             if (projectiles[i].getRectPosition().x < 0 ||
@@ -47,15 +54,30 @@ int Game::play() {
                     projectiles[i].getRectPosition().y < 0 ||
                     projectiles[i].getRectPosition().y > HEIGHT) {
                 projectiles.erase(projectiles.begin() + i);
+            } else {
+                projectiles[i].update();
             }
-            projectiles[i].update();
+        }
+
+        // Draw rects
+
+        // for (size_t i = 0; i < enemies.size(); i++) {
+        //     enemies[i].drawRect(window);
+        // }
+        for (size_t i = 0; i < projectiles.size(); i++) {
             projectiles[i].drawRect(window);
         }
+        // player.drawRect(window);
 
         // Draws
         player.draw(window);
-        // player.drawRect(window);
-
+        for (size_t i = 0; i < enemies.size(); i++) {
+            enemies[i].draw(window);
+        }
+        // for (size_t i = 0; i < projectiles.size(); i++) {
+        //     projectiles[i].draw(window);
+        // }
+           
         window.display();
     }
 
