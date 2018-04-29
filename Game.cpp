@@ -40,7 +40,7 @@ int Game::play() {
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-            if (elapsedShot.asSeconds() >= 0.5) {
+            if (elapsedShot.asSeconds() >= 0.3) {
                 clock.restart();
                 Projectile proj;
                 proj.setPosition(player.getRectPosition());
