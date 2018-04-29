@@ -10,9 +10,11 @@ public:
   void update();
   void updateMovement();
   void loadTexture(sf::Texture &tex);
+  void hit(float attack);
+  float getLife();
 private:
   float movementSpeed = 0.2;
   int attackDamage = 5;
-  int life = 100;
+  float life = 100;
   int walkCounter = 0;
 };

@@ -49,3 +49,10 @@ void Player::update() {
     sprite.setPosition(rect.getPosition());
 }
 
+void Player::hit(float attack) {
+    life -= attack;
+}
+
+float Player::getLife() {
+    return life;
+}

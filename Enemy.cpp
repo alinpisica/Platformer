@@ -6,7 +6,7 @@
 
 Enemy::Enemy() {
     rect.setSize(sf::Vector2f(32, 32));
-    rect.setPosition(250, 250);
+    rect.setPosition(rand() % 800, rand() % 600);
     rect.setFillColor(sf::Color::Yellow);
     sprite.setPosition(rect.getPosition());
     setRandomDirection();
@@ -50,6 +50,10 @@ void Enemy::hit(float attack) {
 
 float Enemy::getLife() {
     return life;
+}
+
+float Enemy::getAttackDamage() {
+    return attackDamage;
 }
 
 void Enemy::setRandomDirection() {

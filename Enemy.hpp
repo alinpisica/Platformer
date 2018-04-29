@@ -12,6 +12,7 @@ public:
     sf::Vector2f getRectPosition();
     void hit(float attack);
     float getLife();
+    float getAttackDamage();
 
     void moveTo(sf::Vector2f pos);
 private:

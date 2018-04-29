@@ -12,10 +12,12 @@ Game::~Game() {
 
 int Game::play() {
     sf::Time elapsedShot;
+    sf::Time elapsedPlayerDamage;
 
     // Load Textures
     sf::Texture playerTexture;
     sf::Texture enemyTexture;
+    sf::Texture fireballTexture;
 
     if (!playerTexture.loadFromFile("Resources/playerSheet.png")) {
         return EXIT_FAILURE;
@@ -29,8 +31,13 @@ int Game::play() {
     enemy1.loadTexture(enemyTexture);
     enemies.push_back(enemy1);
 
+    if (!fireballTexture.loadFromFile("Resources/fireball.png")) {
+        return EXIT_FAILURE;
+    }
+
     while (window.isOpen()) {
-        elapsedShot = clock.getElapsedTime();
+        elapsedShot = clockProjectile.getElapsedTime();
+        elapsedPlayerDamage = clockHit.getElapsedTime();
 
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -41,12 +48,19 @@ int Game::play() {
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
             if (elapsedShot.asSeconds() >= 0.3) {
-                clock.restart();
+                clockProjectile.restart();
                 Projectile proj;
+                proj.loadTexture(fireballTexture);
                 proj.setPosition(player.getRectPosition());
                 proj.setDirection(player.getDirection());
                 projectiles.push_back(proj);
             }
+        }
+        
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+            Enemy en;
+            en.loadTexture(enemyTexture);
+            enemies.push_back(en);
         }
 
         window.clear(sf::Color::Black);
@@ -82,14 +96,26 @@ int Game::play() {
             }
         }
 
+        float lifeDamage = 0;
+        for (size_t i = 0; i < enemies.size(); i++) {
+            if (enemies[i].collides(player.getRect())) {
+                lifeDamage += enemies[i].getAttackDamage();
+            }
+        }
+        if (lifeDamage > 0 && elapsedPlayerDamage.asSeconds() >= 1) {
+            clockHit.restart();
+            player.hit(lifeDamage);
+            std::cout << player.getLife() << "\n";
+        }
+
         // Draw rects
 
         // for (size_t i = 0; i < enemies.size(); i++) {
         //     enemies[i].drawRect(window);
         // }
-        for (size_t i = 0; i < projectiles.size(); i++) {
-            projectiles[i].drawRect(window);
-        }
+        //for (size_t i = 0; i < projectiles.size(); i++) {
+        //    projectiles[i].drawRect(window);
+        //}
         // player.drawRect(window);
 
         // Draws
@@ -97,10 +123,11 @@ int Game::play() {
         for (size_t i = 0; i < enemies.size(); i++) {
             enemies[i].draw(window);
         }
-        // for (size_t i = 0; i < projectiles.size(); i++) {
-        //     projectiles[i].draw(window);
-        // }
+        for (size_t i = 0; i < projectiles.size(); i++) {
+            projectiles[i].draw(window);
+        } 
            
+
         window.display();
     }
 
