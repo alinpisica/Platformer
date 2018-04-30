@@ -6,6 +6,7 @@
 #include "Player.hpp"
 #include "Projectile.hpp"
 #include "Enemy.hpp"
+#include "Wall.hpp"
 
 class Game {
 public:
@@ -22,4 +23,5 @@ private:
     Player player;
     std::vector<Projectile> projectiles;
     std::vector<Enemy> enemies;
+    std::vector<Wall> walls;
 };

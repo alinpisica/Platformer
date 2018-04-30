@@ -1,9 +1,10 @@
 #include "Game.hpp"
-
+#include <ctime>
 Game::Game() {
     WIDTH = 800;
     HEIGHT = 600;
-    window.create(sf::VideoMode(WIDTH, HEIGHT), "Platformer"); 
+    window.create(sf::VideoMode(WIDTH, HEIGHT), "Platformer");
+    srand(time(NULL));
 }
 
 Game::~Game() {
@@ -18,6 +19,7 @@ int Game::play() {
     sf::Texture playerTexture;
     sf::Texture enemyTexture;
     sf::Texture fireballTexture;
+    sf::Texture wallTexture;
 
     if (!playerTexture.loadFromFile("Resources/playerSheet.png")) {
         return EXIT_FAILURE;
@@ -34,6 +36,15 @@ int Game::play() {
     if (!fireballTexture.loadFromFile("Resources/fireball.png")) {
         return EXIT_FAILURE;
     }
+
+    if (!wallTexture.loadFromFile("Resources/wall.png")) {
+        return EXIT_FAILURE;
+    }
+
+    Wall wl;
+    wl.loadTexture(wallTexture);
+    wl.setPosition(sf::Vector2f(15, 15));
+    walls.push_back(wl);
 
     while (window.isOpen()) {
         elapsedShot = clockProjectile.getElapsedTime();
@@ -75,7 +86,13 @@ int Game::play() {
                     projectiles[i].getRectPosition().y > HEIGHT) {
                 projectiles.erase(projectiles.begin() + i);
             } else {
-                projectiles[i].update();
+                for (size_t j = 0; j < walls.size(); j++) {
+                    if (projectiles[i].collides(walls[i].getRect())) {
+                        projectiles.erase(projectiles.begin() + i);
+                    } else {
+                        projectiles[i].update();
+                    }
+                }
             }
         }
         for (size_t i = 0; i < enemies.size(); i++) {
@@ -126,7 +143,9 @@ int Game::play() {
         for (size_t i = 0; i < projectiles.size(); i++) {
             projectiles[i].draw(window);
         } 
-           
+        for (size_t i = 0; i < walls.size(); i++) {
+            walls[i].draw(window);
+        }
 
         window.display();
     }

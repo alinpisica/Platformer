@@ -2,8 +2,6 @@
 
 #include <cstdlib>
 
-
-
 Enemy::Enemy() {
     rect.setSize(sf::Vector2f(32, 32));
     rect.setPosition(rand() % 800, rand() % 600);
