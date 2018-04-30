@@ -1,8 +1,8 @@
 #include "Game.hpp"
 #include <ctime>
 Game::Game() {
-    WIDTH = 800;
-    HEIGHT = 600;
+    WIDTH = 960;
+    HEIGHT = 640;
     window.create(sf::VideoMode(WIDTH, HEIGHT), "Platformer");
     srand(time(NULL));
 }
@@ -41,10 +41,7 @@ int Game::play() {
         return EXIT_FAILURE;
     }
 
-    Wall wl;
-    wl.loadTexture(wallTexture);
-    wl.setPosition(sf::Vector2f(15, 15));
-    walls.push_back(wl);
+    loadMap("Level1.txt", wallTexture);
 
     while (window.isOpen()) {
         elapsedShot = clockProjectile.getElapsedTime();
@@ -80,20 +77,24 @@ int Game::play() {
         player.update();
 
         for (size_t i = 0; i < projectiles.size(); i++) {
+            bool deleted = false;
             if (projectiles[i].getRectPosition().x < 0 ||
                     projectiles[i].getRectPosition().x > WIDTH ||
                     projectiles[i].getRectPosition().y < 0 ||
                     projectiles[i].getRectPosition().y > HEIGHT) {
                 projectiles.erase(projectiles.begin() + i);
-            } else {
-                for (size_t j = 0; j < walls.size(); j++) {
-                    if (projectiles[i].collides(walls[i].getRect())) {
-                        projectiles.erase(projectiles.begin() + i);
-                    } else {
-                        projectiles[i].update();
-                    }
+                deleted = true;
+            } 
+            for (size_t j = 0; j < walls.size() && deleted == false; j++) {
+                if (projectiles[i].collides(walls[j].getRect())) {
+                    projectiles.erase(projectiles.begin() + i);
+                    deleted = true;
+                    std::cout << "Deleted\n";
                 }
             }
+            if (deleted == false) {
+                projectiles[i].update();
+            }            
         }
         for (size_t i = 0; i < enemies.size(); i++) {
             if (enemies[i].getLife() <= 0) {
@@ -151,4 +152,22 @@ int Game::play() {
     }
 
     return 0;
+}
+
+void Game::loadMap(std::string mapLevel, sf::Texture &texWall) {
+    int wall;
+    std::ifstream fin("Resources/Maps/" + mapLevel);
+    for (size_t i = 0; i < 20; i++) {
+        for (size_t j = 0; j < 30; j++) {
+            fin >> wall;
+            if (wall) {
+                Wall w;
+                w.loadTexture(texWall);
+                w.setPosition(sf::Vector2f(32 * j, 32 * i));
+                walls.push_back(w);
+            }
+        }
+    }
+
+    fin.close();
 }

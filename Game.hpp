@@ -3,6 +3,8 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <iostream>
+#include <string>
+#include <fstream>
 #include "Player.hpp"
 #include "Projectile.hpp"
 #include "Enemy.hpp"
@@ -19,6 +21,8 @@ private:
 
     int WIDTH, HEIGHT;
     sf::RenderWindow window;
+
+    void loadMap(std::string mapLevel, sf::Texture &tex);
 
     Player player;
     std::vector<Projectile> projectiles;
