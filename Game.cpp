@@ -11,9 +11,37 @@ Game::~Game() {
 
 }
 
+void Game::updateProjectiles() {
+    for (size_t i = 0; i < projectiles.size(); i++) {
+        bool deleted = false;
+        if (projectiles[i].getRectPosition().x < 0 ||
+            projectiles[i].getRectPosition().x > WIDTH ||
+            projectiles[i].getRectPosition().y < 0 ||
+            projectiles[i].getRectPosition().y > HEIGHT) {
+            projectiles.erase(projectiles.begin() + i);
+            deleted = true;
+        } 
+        for (size_t j = 0; j < walls.size() && deleted == false; j++) {
+            if (projectiles[i].collides(walls[j].getRect())) {
+                projectiles.erase(projectiles.begin() + i);
+                deleted = true;
+            }
+        }
+        if (deleted == false) {
+            projectiles[i].update();
+        }
+    }
+}
+
 int Game::play() {
     sf::Time elapsedShot;
     sf::Time elapsedPlayerDamage;
+
+    sf::Font font;
+
+    if (!font.loadFromFile("Resources/arcadeclassic.ttf")) {
+        return EXIT_FAILURE;
+    }
 
     // Load Textures
     sf::Texture playerTexture;
@@ -75,27 +103,8 @@ int Game::play() {
 
         // Updates
         player.update();
+        updateProjectiles();
 
-        for (size_t i = 0; i < projectiles.size(); i++) {
-            bool deleted = false;
-            if (projectiles[i].getRectPosition().x < 0 ||
-                    projectiles[i].getRectPosition().x > WIDTH ||
-                    projectiles[i].getRectPosition().y < 0 ||
-                    projectiles[i].getRectPosition().y > HEIGHT) {
-                projectiles.erase(projectiles.begin() + i);
-                deleted = true;
-            } 
-            for (size_t j = 0; j < walls.size() && deleted == false; j++) {
-                if (projectiles[i].collides(walls[j].getRect())) {
-                    projectiles.erase(projectiles.begin() + i);
-                    deleted = true;
-                    std::cout << "Deleted\n";
-                }
-            }
-            if (deleted == false) {
-                projectiles[i].update();
-            }            
-        }
         for (size_t i = 0; i < enemies.size(); i++) {
             if (enemies[i].getLife() <= 0) {
                 enemies.erase(enemies.begin() + i);
@@ -109,7 +118,13 @@ int Game::play() {
                 if (enemies[i].collides(projectiles[j].getRect())) {
                     enemies[i].hit(projectiles[j].getAttackDamage());
                     projectiles.erase(projectiles.begin() + j);
-                    std::cout << "DA\n";
+                    TextDisplay txt;
+                    std::string s = std::to_string((int)projectiles[j].getAttackDamage());
+                    txt.setText(s);
+                    txt.setPosition(sf::Vector2f(enemies[i].getRectPosition().x, enemies[i].getRectPosition().y - 20));
+                    txt.loadFont(font);
+                    txt.setColor(sf::Color::Red);
+                    texts.push_back(txt);
                 }
             }
         }
@@ -121,9 +136,25 @@ int Game::play() {
             }
         }
         if (lifeDamage > 0 && elapsedPlayerDamage.asSeconds() >= 1) {
+            TextDisplay txt;
+            std::string s = std::to_string((int)lifeDamage);
+            txt.setText(s);
+            txt.setPosition(sf::Vector2f(player.getRectPosition().x, player.getRectPosition().y - 20));
+            txt.loadFont(font);
+            txt.setColor(sf::Color::Green);
+            texts.push_back(txt);
+
             clockHit.restart();
             player.hit(lifeDamage);
             std::cout << player.getLife() << "\n";
+        }
+
+        for (size_t i = 0; i < texts.size(); i++) {
+            if (texts[i].shouldDestroy()) {
+                texts.erase(texts.begin() + i);
+            } else {
+                texts[i].update();
+            }
         }
 
         // Draw rects
@@ -146,6 +177,9 @@ int Game::play() {
         } 
         for (size_t i = 0; i < walls.size(); i++) {
             walls[i].draw(window);
+        }
+        for (size_t i = 0; i < texts.size(); i++) {
+            texts[i].draw(window);
         }
 
         window.display();
