@@ -19,24 +19,48 @@ void Player::loadTexture(sf::Texture &tex) {
 
 void Player::updateMovement() {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-        rect.move(0, -movementSpeed);
-        sprite.setTextureRect(sf::IntRect(walkCounter * 24, 32 * 1, 24, 32));
-        direction = "up";
+        if (canMoveUp) {
+            rect.move(0, -movementSpeed);
+            sprite.setTextureRect(sf::IntRect(walkCounter * 24, 32 * 1, 24, 32));
+            direction = "up";
+            canMoveLeft = true;
+            canMoveRight = true;
+            canMoveUp = true;
+            canMoveDown = true;
+        }
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-        rect.move(0, movementSpeed);
-        sprite.setTextureRect(sf::IntRect(walkCounter * 24, 32 * 0, 24, 32));
-        direction = "down";
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+        if (canMoveDown) {
+            rect.move(0, movementSpeed);
+            sprite.setTextureRect(sf::IntRect(walkCounter * 24, 32 * 0, 24, 32));
+            direction = "down";
+            canMoveLeft = true;
+            canMoveRight = true;
+            canMoveUp = true;
+            canMoveDown = true;
+        }
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-        rect.move(-movementSpeed, 0);
-        sprite.setTextureRect(sf::IntRect(walkCounter * 24, 32 * 2, 24, 32));
-        direction = "left";
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+        if (canMoveLeft) {
+            rect.move(-movementSpeed, 0);
+            sprite.setTextureRect(sf::IntRect(walkCounter * 24, 32 * 2, 24, 32));
+            direction = "left";
+            canMoveLeft = true;
+            canMoveRight = true;
+            canMoveUp = true;
+            canMoveDown = true;
+        }
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-        rect.move(movementSpeed, 0);
-        sprite.setTextureRect(sf::IntRect(walkCounter * 24, 32 * 3, 24, 32));
-        direction = "right";
+    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+        if (canMoveRight) {
+            rect.move(movementSpeed, 0);
+            sprite.setTextureRect(sf::IntRect(walkCounter * 24, 32 * 3, 24, 32));
+            direction = "right";
+            canMoveLeft = true;
+            canMoveRight = true;
+            canMoveUp = true;
+            canMoveDown = true;
+        }
     }
     walkCounter++;
     if (walkCounter == 8) {
@@ -55,4 +79,14 @@ void Player::hit(float attack) {
 
 float Player::getLife() {
     return life;
+}
+
+void Player::disableMoveUp() { canMoveUp = false; }
+void Player::disableMoveDown() { canMoveDown = false; }
+void Player::disableMoveLeft() { canMoveLeft = false; }
+void Player::disableMoveRight() { canMoveRight = false; }
+
+void Player::movePlayer(sf::Vector2f mv) {
+    rect.move(mv);
+    sprite.setPosition(rect.getPosition());
 }

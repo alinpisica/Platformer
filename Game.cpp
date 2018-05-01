@@ -33,21 +33,41 @@ void Game::updateProjectiles() {
     }
 }
 
-int Game::play() {
-    sf::Time elapsedShot;
-    sf::Time elapsedPlayerDamage;
+void Game::updateEnemies() {
+    for (size_t i = 0; i < enemies.size(); i++) {
+        if (enemies[i].getLife() <= 0) {
+            enemies.erase(enemies.begin() + i);
+        } else {
+            enemies[i].update();
+        }
+    }
+}
 
-    sf::Font font;
+void Game::playerCollidesWall() {
+    for (size_t i = 0; i < walls.size(); i++) {
+        if (player.collides(walls[i].getRect())) {
+            if (player.getDirection() == "up") {
+                player.disableMoveUp();
+                player.movePlayer(sf::Vector2f(0, 1));
+            } else if (player.getDirection() == "down") {
+                player.disableMoveDown();
+                player.movePlayer(sf::Vector2f(0, -1));
+            } else if (player.getDirection() == "left") {
+                player.disableMoveLeft();
+                player.movePlayer(sf::Vector2f(1, 0));
+            } else if (player.getDirection() == "right") {
+                player.disableMoveRight();
+                player.movePlayer(sf::Vector2f(-1, 0));
+            }
+        }
+    }
+}
 
+int Game::loadTextures() {
     if (!font.loadFromFile("Resources/arcadeclassic.ttf")) {
         return EXIT_FAILURE;
     }
 
-    // Load Textures
-    sf::Texture playerTexture;
-    sf::Texture enemyTexture;
-    sf::Texture fireballTexture;
-    sf::Texture wallTexture;
 
     if (!playerTexture.loadFromFile("Resources/playerSheet.png")) {
         return EXIT_FAILURE;
@@ -57,9 +77,6 @@ int Game::play() {
     if (!enemyTexture.loadFromFile("Resources/monsters.png")) {
         return EXIT_FAILURE;
     }
-    Enemy enemy1;
-    enemy1.loadTexture(enemyTexture);
-    enemies.push_back(enemy1);
 
     if (!fireballTexture.loadFromFile("Resources/fireball.png")) {
         return EXIT_FAILURE;
@@ -68,6 +85,54 @@ int Game::play() {
     if (!wallTexture.loadFromFile("Resources/wall.png")) {
         return EXIT_FAILURE;
     }
+}
+
+void Game::projectilesHits() {
+    for (size_t i = 0; i < enemies.size(); i++) { 
+        for (size_t j = 0; j < projectiles.size(); j++) {
+            if (enemies[i].collides(projectiles[j].getRect())) {
+                enemies[i].hit(projectiles[j].getAttackDamage());
+                projectiles.erase(projectiles.begin() + j);
+                TextDisplay txt;
+                std::string s = std::to_string((int)projectiles[j].getAttackDamage());
+                txt.setText(s);
+                txt.setPosition(sf::Vector2f(enemies[i].getRectPosition().x, enemies[i].getRectPosition().y - 20));
+                txt.loadFont(font);
+                txt.setColor(sf::Color::Red);
+                texts.push_back(txt);
+            }
+        }
+    }
+}
+
+void Game::playerHitsEnemy() {
+    float lifeDamage = 0;
+    for (size_t i = 0; i < enemies.size(); i++) {
+        if (enemies[i].collides(player.getRect())) {
+            lifeDamage += enemies[i].getAttackDamage();
+        }
+    }
+    if (lifeDamage > 0 && elapsedPlayerDamage.asSeconds() >= 1) {
+        TextDisplay txt;
+        std::string s = std::to_string((int)lifeDamage);
+        txt.setText(s);
+        txt.setPosition(sf::Vector2f(player.getRectPosition().x, player.getRectPosition().y - 20));
+        txt.loadFont(font);
+        txt.setColor(sf::Color::Green);
+        texts.push_back(txt);
+        clockHit.restart();
+        player.hit(lifeDamage);
+    }
+}
+
+int Game::play() {
+    loadTextures(); 
+    
+    Enemy enemy1;
+    enemy1.loadTexture(enemyTexture);
+    enemies.push_back(enemy1);
+
+    
 
     loadMap("Level1.txt", wallTexture);
 
@@ -104,50 +169,10 @@ int Game::play() {
         // Updates
         player.update();
         updateProjectiles();
-
-        for (size_t i = 0; i < enemies.size(); i++) {
-            if (enemies[i].getLife() <= 0) {
-                enemies.erase(enemies.begin() + i);
-            } else {
-                enemies[i].update();
-            }
-        }
-
-        for (size_t i = 0; i < enemies.size(); i++) { 
-            for (size_t j = 0; j < projectiles.size(); j++) {
-                if (enemies[i].collides(projectiles[j].getRect())) {
-                    enemies[i].hit(projectiles[j].getAttackDamage());
-                    projectiles.erase(projectiles.begin() + j);
-                    TextDisplay txt;
-                    std::string s = std::to_string((int)projectiles[j].getAttackDamage());
-                    txt.setText(s);
-                    txt.setPosition(sf::Vector2f(enemies[i].getRectPosition().x, enemies[i].getRectPosition().y - 20));
-                    txt.loadFont(font);
-                    txt.setColor(sf::Color::Red);
-                    texts.push_back(txt);
-                }
-            }
-        }
-
-        float lifeDamage = 0;
-        for (size_t i = 0; i < enemies.size(); i++) {
-            if (enemies[i].collides(player.getRect())) {
-                lifeDamage += enemies[i].getAttackDamage();
-            }
-        }
-        if (lifeDamage > 0 && elapsedPlayerDamage.asSeconds() >= 1) {
-            TextDisplay txt;
-            std::string s = std::to_string((int)lifeDamage);
-            txt.setText(s);
-            txt.setPosition(sf::Vector2f(player.getRectPosition().x, player.getRectPosition().y - 20));
-            txt.loadFont(font);
-            txt.setColor(sf::Color::Green);
-            texts.push_back(txt);
-
-            clockHit.restart();
-            player.hit(lifeDamage);
-            std::cout << player.getLife() << "\n";
-        }
+        updateEnemies();
+        playerCollidesWall();
+        projectilesHits();
+        playerHitsEnemy();
 
         for (size_t i = 0; i < texts.size(); i++) {
             if (texts[i].shouldDestroy()) {
@@ -157,17 +182,6 @@ int Game::play() {
             }
         }
 
-        // Draw rects
-
-        // for (size_t i = 0; i < enemies.size(); i++) {
-        //     enemies[i].drawRect(window);
-        // }
-        //for (size_t i = 0; i < projectiles.size(); i++) {
-        //    projectiles[i].drawRect(window);
-        //}
-        // player.drawRect(window);
-
-        // Draws
         player.draw(window);
         for (size_t i = 0; i < enemies.size(); i++) {
             enemies[i].draw(window);

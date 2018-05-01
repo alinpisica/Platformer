@@ -20,11 +20,26 @@ private:
     sf::Clock clockProjectile;
     sf::Clock clockHit;
 
+    sf::Time elapsedShot;
+    sf::Time elapsedPlayerDamage;
+
+    sf::Font font;
+
     int WIDTH, HEIGHT;
     sf::RenderWindow window;
 
     void loadMap(std::string mapLevel, sf::Texture &tex);
     void updateProjectiles();
+    void updateEnemies();
+    void playerCollidesWall();
+    void projectilesHits();
+    void playerHitsEnemy();
+
+    sf::Texture playerTexture;
+    sf::Texture enemyTexture;
+    sf::Texture fireballTexture;
+    sf::Texture wallTexture;
+    int loadTextures();
 
     Player player;
     std::vector<Projectile> projectiles;
