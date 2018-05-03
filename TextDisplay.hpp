@@ -15,6 +15,6 @@ public:
     void update();
     void draw(sf::RenderWindow &window);
 private:
-    int lifeTime = 200;
-    float movementSpeed = 0.1;
+    int lifeTime = 30;
+    float movementSpeed = 1;
 };

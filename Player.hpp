@@ -17,8 +17,12 @@ public:
   void disableMoveLeft();
   void disableMoveRight();
   void movePlayer(sf::Vector2f mv);
-  
+  void enableNovaAttack();
+  void disableNovaAttack();
+  bool hasNovaAttack();
+
 private:
+  bool novaAttack = false;
   bool canMoveLeft  = true;
   bool canMoveRight = true;
   bool canMoveUp    = true;

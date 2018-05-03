@@ -11,7 +11,7 @@ Enemy::Enemy() {
     canMoveRight = true;
     canMoveDown = true;
     canMoveUp = true;
-//    direction = "up";
+    direction = "up";
  //   moves = (int)(rand() % 800 + 200);
     newDirection();
 }
@@ -31,32 +31,32 @@ void Enemy::newDirection() {
 void Enemy::updateMovement() {
     if (direction == "up" && canMoveUp) {
         rect.move(0, -movementSpeed);
-        canMoveUp = true;
+        //canMoveUp = true;
         canMoveDown = true;
-        canMoveLeft = true;
-        canMoveRight = true;
+        //canMoveLeft = true;
+        //canMoveRight = true;
     } else if (direction == "down" && canMoveDown) {
         rect.move(0, movementSpeed);
         canMoveUp = true;
-        canMoveDown = true;
-        canMoveLeft = true;
-        canMoveRight = true;
+        //canMoveDown = true;
+        //canMoveLeft = true;
+        //canMoveRight = true;
     } else if (direction == "left" && canMoveLeft) {
         rect.move(-movementSpeed, 0);
-        canMoveUp = true;
-        canMoveLeft = true;
-        canMoveDown = true;
+        //canMoveUp = true;
+        //canMoveLeft = true;
+        //canMoveDown = true;
         canMoveRight = true;
     } else if (direction == "right" && canMoveRight) {
         rect.move(movementSpeed, 0);
-        canMoveUp = true;
+        //canMoveUp = true;
         canMoveLeft = true;
-        canMoveDown = true;
-        canMoveRight = true;
+        //canMoveDown = true;
+        //canMoveRight = true;
     }
     
     moves--;
-    if (moves <= 0) {
+    if (moves <= 1) {
         newDirection();
     }
 
@@ -80,15 +80,11 @@ float Enemy::getAttackDamage() {
 }
 
 void Enemy::setRandomDirection() {
-    std::string s;
-    do {
-        int dir = rand() % 4;
-        if (dir == 0) s = "up";
-        else if (dir == 1) s = "right";
-        else if (dir == 2) s = "down";
-        else if (dir == 3) s = "left";
-    } while (s == direction);
-    direction = s;
+    int dir = rand() % 4;
+    if (dir == 0) direction = "up";
+    else if (dir == 1) direction = "right";
+    else if (dir == 2) direction = "down";
+    else if (dir == 3) direction = "left";
 }
 
 void Enemy::disableMoveUp() { canMoveUp = false; }

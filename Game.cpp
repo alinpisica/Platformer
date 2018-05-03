@@ -34,6 +34,15 @@ void Game::updateProjectiles() {
     }
 }
 
+void Game::pickupNovas() {
+    for (size_t i = 0; i < novas.size(); i++) {
+        if (player.collides(novas[i].getRect())) {
+            player.enableNovaAttack();
+            novas.erase(novas.begin() + i);
+        }
+    }
+}
+
 void Game::updateEnemies() {
     for (size_t i = 0; i < enemies.size(); i++) {
         bool deleted = false;
@@ -54,16 +63,16 @@ void Game::playerCollidesWall() {
         if (player.collides(walls[i].getRect())) {
             if (player.getDirection() == "up") {
                 player.disableMoveUp();
-                player.movePlayer(sf::Vector2f(0, 1));
+                player.movePlayer(sf::Vector2f(0, 2));
             } else if (player.getDirection() == "down") {
                 player.disableMoveDown();
-                player.movePlayer(sf::Vector2f(0, -1));
+                player.movePlayer(sf::Vector2f(0, -2));
             } else if (player.getDirection() == "left") {
                 player.disableMoveLeft();
-                player.movePlayer(sf::Vector2f(1, 0));
+                player.movePlayer(sf::Vector2f(2, 0));
             } else if (player.getDirection() == "right") {
                 player.disableMoveRight();
-                player.movePlayer(sf::Vector2f(-1, 0));
+                player.movePlayer(sf::Vector2f(-2, 0));
             }
         }
     }
@@ -77,16 +86,19 @@ void Game::enemiesCollideWall() {
                 float mspeed = enemies[i].getMovementSpeed();
                 if (dr == "up") {
                     enemies[i].disableMoveUp();
-                    enemies[i].moveEnemy(sf::Vector2f(0, mspeed * 3));
-                } else if (dr == "down") {
+                    enemies[i].moveEnemy(sf::Vector2f(0, mspeed * 2));
+                } 
+                if (dr == "down") {
                     enemies[i].disableMoveDown();
-                    enemies[i].moveEnemy(sf::Vector2f(0, -mspeed * 3));
-                } else if (dr == "left") {
+                    enemies[i].moveEnemy(sf::Vector2f(0, -mspeed * 2));
+                }
+                if (dr == "left") {
                     enemies[i].disableMoveLeft();
-                    enemies[i].moveEnemy(sf::Vector2f(3 * mspeed, 0));
-                } else if (dr == "right") {
+                    enemies[i].moveEnemy(sf::Vector2f(mspeed, 0 * 2));
+                } 
+                if (dr == "right") {
                     enemies[i].disableMoveRight();
-                    enemies[i].moveEnemy(sf::Vector2f(-mspeed * 3, 0));
+                    enemies[i].moveEnemy(sf::Vector2f(-mspeed, 0 * 2));
                 }
             }
         }
@@ -97,7 +109,6 @@ void Game::loadTextures() {
     if (!font.loadFromFile("Resources/arcadeclassic.ttf")) {
         std::cout << "Error loading font.\n";
     }
-
 
     if (!playerTexture.loadFromFile("Resources/playerSheet.png")) {
         std::cout << "Error loading player texture.\n";
@@ -118,6 +129,10 @@ void Game::loadTextures() {
 
     if (!coinTexture.loadFromFile("Resources/coin.png")) {
         std::cout << "Error loading coin texture.\n";
+    }
+
+    if (!pickupTexture.loadFromFile("Resources/pickup.png")) {
+        std::cout << "Error loading pickup texture.\n";
     }
 }
 
@@ -156,6 +171,7 @@ void Game::playerHitsEnemy() {
         texts.push_back(txt);
         clockHit.restart();
         player.hit(lifeDamage);
+        player.disableNovaAttack();
     }
 }
 
@@ -185,6 +201,10 @@ void Game::play() {
     coin1.loadTexture(coinTexture);
     coins.push_back(coin1);
 
+    NovaPickup nova;
+    nova.loadTexture(pickupTexture);
+    novas.push_back(nova);
+
     loadMap("Level1.txt", wallTexture);
 
     while (window.isOpen()) {
@@ -199,13 +219,24 @@ void Game::play() {
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-            if (elapsedShot.asSeconds() >= 0.3) {
+            if (elapsedShot.asSeconds() >= 0.2) {
                 clockProjectile.restart();
                 Projectile proj;
                 proj.loadTexture(fireballTexture);
                 proj.setPosition(player.getRectPosition());
-                proj.setDirection(player.getDirection());
-                projectiles.push_back(proj);
+                if (player.hasNovaAttack()) {
+                    proj.setDirection("up");
+                    projectiles.push_back(proj);
+                    proj.setDirection("down");
+                    projectiles.push_back(proj);
+                    proj.setDirection("left");
+                    projectiles.push_back(proj);
+                    proj.setDirection("right");
+                    projectiles.push_back(proj);
+                } else {
+                    proj.setDirection(player.getDirection());
+                    projectiles.push_back(proj); 
+                }
             }
         }
         
@@ -215,18 +246,19 @@ void Game::play() {
             enemies.push_back(en);
         }
 
-        window.clear(sf::Color::Black);
+        window.clear(sf::Color(102, 102, 102));
 
         // Updates
-        player.update();
         updateProjectiles();
-        updateEnemies();
         playerCollidesWall();
+        player.update();
         projectilesHits();
         playerHitsEnemy();
         enemiesCollideWall();
+        updateEnemies();
         updateCoins();
         checkCoinsCollected();
+        pickupNovas();
 
         for (size_t i = 0; i < texts.size(); i++) {
             if (texts[i].shouldDestroy()) {
@@ -251,6 +283,9 @@ void Game::play() {
         }
         for (size_t i = 0; i < coins.size(); i++) {
             coins[i].draw(window);
+        }
+        for (size_t i = 0; i < novas.size(); i++) {
+            novas[i].draw(window);
         }
 
         window.display();

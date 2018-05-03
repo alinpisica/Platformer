@@ -13,6 +13,6 @@ public:
     float getAttackDamage();
     void loadTexture(sf::Texture &tex);
 private:
-    float movementSpeed = 1;
+    float movementSpeed = 7;
     float attackDamage = 10;
 };

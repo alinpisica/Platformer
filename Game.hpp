@@ -11,6 +11,7 @@
 #include "Wall.hpp"
 #include "TextDisplay.hpp"
 #include "Coin.hpp"
+#include "NovaPickup.hpp"
 
 class Game {
 public:
@@ -40,12 +41,14 @@ private:
     void enemiesCollideWall();
     void updateCoins();
     void checkCoinsCollected();
+    void pickupNovas();
 
     sf::Texture playerTexture;
     sf::Texture enemyTexture;
     sf::Texture fireballTexture;
     sf::Texture wallTexture;
     sf::Texture coinTexture;
+    sf::Texture pickupTexture;
     void loadTextures();
 
     Player player;
@@ -54,4 +57,5 @@ private:
     std::vector<Wall> walls;
     std::vector<TextDisplay> texts;
     std::vector<Coin> coins;
+    std::vector<NovaPickup> novas;
 };

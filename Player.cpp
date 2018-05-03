@@ -81,6 +81,18 @@ float Player::getLife() {
     return life;
 }
 
+bool Player::hasNovaAttack() {
+    return novaAttack;
+}
+
+void Player::enableNovaAttack() {
+    novaAttack = true;
+}
+
+void Player::disableNovaAttack() {
+    novaAttack = false;
+}
+
 void Player::disableMoveUp() { canMoveUp = false; }
 void Player::disableMoveDown() { canMoveDown = false; }
 void Player::disableMoveLeft() { canMoveLeft = false; }
