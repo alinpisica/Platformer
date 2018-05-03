@@ -19,11 +19,11 @@ public:
   void movePlayer(sf::Vector2f mv);
   
 private:
-  bool canMoveLeft;
-  bool canMoveRight;
-  bool canMoveUp;
-  bool canMoveDown;
-  float movementSpeed = 0.2;
+  bool canMoveLeft  = true;
+  bool canMoveRight = true;
+  bool canMoveUp    = true;
+  bool canMoveDown  = true;
+  float movementSpeed = 5;
   int attackDamage = 5;
   float life = 100;
   int walkCounter = 0;

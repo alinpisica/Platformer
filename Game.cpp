@@ -5,6 +5,7 @@ Game::Game() {
     HEIGHT = 640;
     window.create(sf::VideoMode(WIDTH, HEIGHT), "Platformer");
     srand(time(NULL));
+    window.setFramerateLimit(60);
 }
 
 Game::~Game() {
@@ -18,8 +19,8 @@ void Game::updateProjectiles() {
             projectiles[i].getRectPosition().x > WIDTH ||
             projectiles[i].getRectPosition().y < 0 ||
             projectiles[i].getRectPosition().y > HEIGHT) {
-            projectiles.erase(projectiles.begin() + i);
-            deleted = true;
+                projectiles.erase(projectiles.begin() + i);
+                deleted = true;
         } 
         for (size_t j = 0; j < walls.size() && deleted == false; j++) {
             if (projectiles[i].collides(walls[j].getRect())) {
@@ -35,9 +36,14 @@ void Game::updateProjectiles() {
 
 void Game::updateEnemies() {
     for (size_t i = 0; i < enemies.size(); i++) {
+        bool deleted = false;
         if (enemies[i].getLife() <= 0) {
             enemies.erase(enemies.begin() + i);
-        } else {
+            deleted = true;
+            std::cout << "Enemy died.\n";
+        }
+        
+        if (!deleted) {
             enemies[i].update();
         }
     }
@@ -63,27 +69,55 @@ void Game::playerCollidesWall() {
     }
 }
 
-int Game::loadTextures() {
+void Game::enemiesCollideWall() {
+    for (size_t i = 0; i < enemies.size(); i++) {
+        for (size_t j = 0; j < walls.size(); j++) {
+            if (enemies[i].collides(walls[j].getRect())) {
+                std::string dr = enemies[i].getDirection();
+                float mspeed = enemies[i].getMovementSpeed();
+                if (dr == "up") {
+                    enemies[i].disableMoveUp();
+                    enemies[i].moveEnemy(sf::Vector2f(0, mspeed * 3));
+                } else if (dr == "down") {
+                    enemies[i].disableMoveDown();
+                    enemies[i].moveEnemy(sf::Vector2f(0, -mspeed * 3));
+                } else if (dr == "left") {
+                    enemies[i].disableMoveLeft();
+                    enemies[i].moveEnemy(sf::Vector2f(3 * mspeed, 0));
+                } else if (dr == "right") {
+                    enemies[i].disableMoveRight();
+                    enemies[i].moveEnemy(sf::Vector2f(-mspeed * 3, 0));
+                }
+            }
+        }
+    }
+}
+
+void Game::loadTextures() {
     if (!font.loadFromFile("Resources/arcadeclassic.ttf")) {
-        return EXIT_FAILURE;
+        std::cout << "Error loading font.\n";
     }
 
 
     if (!playerTexture.loadFromFile("Resources/playerSheet.png")) {
-        return EXIT_FAILURE;
+        std::cout << "Error loading player texture.\n";
     }
     player.loadTexture(playerTexture);
 
     if (!enemyTexture.loadFromFile("Resources/monsters.png")) {
-        return EXIT_FAILURE;
+        std::cout << "Error loading enemy texture.\n";
     }
 
     if (!fireballTexture.loadFromFile("Resources/fireball.png")) {
-        return EXIT_FAILURE;
+        std::cout << "Error loading fireball texture.\n";
     }
 
     if (!wallTexture.loadFromFile("Resources/wall.png")) {
-        return EXIT_FAILURE;
+        std::cout << "Error loading wall texture.\n";
+    }
+
+    if (!coinTexture.loadFromFile("Resources/coin.png")) {
+        std::cout << "Error loading coin texture.\n";
     }
 }
 
@@ -125,14 +159,31 @@ void Game::playerHitsEnemy() {
     }
 }
 
-int Game::play() {
+void Game::updateCoins() {
+    for (size_t i = 0; i < coins.size(); i++) {
+        coins[i].update();
+    }
+}
+
+void Game::checkCoinsCollected() {
+    for (size_t i = 0; i < coins.size(); i++) {
+        if (player.collides(coins[i].getRect())) {
+            playerScore += coins[i].getScore();
+            coins.erase(coins.begin() + i);
+        }
+    }
+}
+
+void Game::play() {
     loadTextures(); 
     
     Enemy enemy1;
     enemy1.loadTexture(enemyTexture);
     enemies.push_back(enemy1);
 
-    
+    Coin coin1;
+    coin1.loadTexture(coinTexture);
+    coins.push_back(coin1);
 
     loadMap("Level1.txt", wallTexture);
 
@@ -173,6 +224,9 @@ int Game::play() {
         playerCollidesWall();
         projectilesHits();
         playerHitsEnemy();
+        enemiesCollideWall();
+        updateCoins();
+        checkCoinsCollected();
 
         for (size_t i = 0; i < texts.size(); i++) {
             if (texts[i].shouldDestroy()) {
@@ -183,23 +237,24 @@ int Game::play() {
         }
 
         player.draw(window);
+        for (size_t i = 0; i < walls.size(); i++) {
+            walls[i].draw(window);
+        }
         for (size_t i = 0; i < enemies.size(); i++) {
             enemies[i].draw(window);
         }
         for (size_t i = 0; i < projectiles.size(); i++) {
             projectiles[i].draw(window);
         } 
-        for (size_t i = 0; i < walls.size(); i++) {
-            walls[i].draw(window);
-        }
         for (size_t i = 0; i < texts.size(); i++) {
             texts[i].draw(window);
+        }
+        for (size_t i = 0; i < coins.size(); i++) {
+            coins[i].draw(window);
         }
 
         window.display();
     }
-
-    return 0;
 }
 
 void Game::loadMap(std::string mapLevel, sf::Texture &texWall) {

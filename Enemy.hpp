@@ -12,14 +12,25 @@ public:
     void hit(float attack);
     float getLife();
     float getAttackDamage();
+    void disableMoveUp();
+    void disableMoveDown();
+    void disableMoveLeft();
+    void disableMoveRight();
+    void moveEnemy(sf::Vector2f mv);
+    void newDirection();
+    float getMovementSpeed();
 
-    void moveTo(sf::Vector2f pos);
+
 private:
     int walkCounter = 0;
     int moves;
-    float movementSpeed = 0.1;
+    float movementSpeed = 3;
     float attackDamage = 15;
     float life = 50;
+    bool canMoveLeft;
+    bool canMoveRight;
+    bool canMoveUp;
+    bool canMoveDown;
 
     void setRandomDirection();
 };
