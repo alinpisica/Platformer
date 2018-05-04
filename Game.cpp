@@ -2,7 +2,7 @@
 #include <ctime>
 Game::Game() {
     WIDTH = 960;
-    HEIGHT = 640;
+    HEIGHT = 740;
     window.create(sf::VideoMode(WIDTH, HEIGHT), "Platformer");
     srand(time(NULL));
     window.setFramerateLimit(60);
@@ -38,6 +38,7 @@ void Game::pickupNovas() {
     for (size_t i = 0; i < novas.size(); i++) {
         if (player.collides(novas[i].getRect())) {
             player.enableNovaAttack();
+            gameInfo.setAttack("Nova");
             novas.erase(novas.begin() + i);
         }
     }
@@ -172,6 +173,7 @@ void Game::playerHitsEnemy() {
         clockHit.restart();
         player.hit(lifeDamage);
         player.disableNovaAttack();
+        gameInfo.setAttack("Normal");
     }
 }
 
@@ -193,6 +195,8 @@ void Game::checkCoinsCollected() {
 void Game::play() {
     loadTextures(); 
     
+    gameInfo.loadFont(font);
+
     Enemy enemy1;
     enemy1.loadTexture(enemyTexture);
     enemies.push_back(enemy1);
@@ -249,6 +253,8 @@ void Game::play() {
         window.clear(sf::Color(102, 102, 102));
 
         // Updates
+        gameInfo.setHp(player.getLife());
+        gameInfo.setScore(playerScore);
         updateProjectiles();
         playerCollidesWall();
         player.update();
@@ -287,6 +293,7 @@ void Game::play() {
         for (size_t i = 0; i < novas.size(); i++) {
             novas[i].draw(window);
         }
+        gameInfo.draw(window);
 
         window.display();
     }

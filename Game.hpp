@@ -12,6 +12,7 @@
 #include "TextDisplay.hpp"
 #include "Coin.hpp"
 #include "NovaPickup.hpp"
+#include "GameInfo.hpp"
 
 class Game {
 public:
@@ -50,6 +51,8 @@ private:
     sf::Texture coinTexture;
     sf::Texture pickupTexture;
     void loadTextures();
+
+    GameInfo gameInfo;
 
     Player player;
     std::vector<Projectile> projectiles;
